@@ -24,6 +24,9 @@ namespace Assets.CreateObjects
         public bool useGravity = true;
         public bool isKinematic = false;
 
+        public CollisionDetectionMode collisionDetectionMode = CollisionDetectionMode.Discrete;
+        public RigidbodyInterpolation interpolate = RigidbodyInterpolation.None;
+
         [Header("Коллайдер")]
         public ColliderType colliderType = ColliderType.Box;
         public bool isTrigger = false;
@@ -40,13 +43,9 @@ namespace Assets.CreateObjects
         public string tag = "Untagged";
         public int layer = 0;
 
-        [Header("Пул объектов")]
-        public bool usePooling = true;
-        public string poolTag;
-        public int poolSize = 10;
 
         [Header("Дополнительно")]
-        public AudioClip[] sounds;
+        public string[] sounds;
         public GameObject[] effects;
         public string description;
 
@@ -89,6 +88,8 @@ namespace Assets.CreateObjects
             rb.angularDrag = angularDrag;
             rb.useGravity = useGravity;
             rb.isKinematic = isKinematic;
+            rb.collisionDetectionMode = collisionDetectionMode;
+            rb.interpolation = interpolate;
         }
 
         void ConfigureCollider(GameObject obj)
@@ -153,13 +154,7 @@ namespace Assets.CreateObjects
         {
             if (sounds != null && sounds.Length > 0)
             {
-                var audioSource = obj.GetComponent<AudioSource>();
-                if (audioSource != null)
-                    audioSource = obj.AddComponent<AudioSource>();
-
-                AudioClip randomSound = sounds[Random.Range(0, sounds.Length)];
-                if (randomSound != null)
-                    audioSource.PlayOneShot(randomSound);
+                // проигрывания звука
             }
             if (effects != null && effects.Length > 0)
             {
@@ -184,15 +179,9 @@ namespace Assets.CreateObjects
 
             GameObject newObject;
 
-            if (usePooling && !string.IsNullOrEmpty(poolTag))
-            {
-                newObject = GetFromPool(spawnPos, spawnRot);
-            }
-            else
-            {
-                newObject = Instantiate(prefab, spawnPos, spawnRot);
-                newObject.name = string.IsNullOrEmpty(objectName) ? prefab.name : objectName;
-            }
+            newObject = Instantiate(prefab, spawnPos, spawnRot);
+            newObject.name = string.IsNullOrEmpty(objectName) ? prefab.name : objectName;
+            
 
             ConfigureObject(newObject);
 
@@ -200,6 +189,5 @@ namespace Assets.CreateObjects
 
             return newObject;
         }
-
     }
 }
